@@ -541,6 +541,9 @@ void IHyprRenderer::renderWindow(PHLWINDOW pWindow, PHLMONITOR pMonitor, const T
     if (pWindow->isHidden() && !standalone)
         return;
 
+    if (m_bScreenshareRender && pWindow->m_ruleApplicator->noScreenShare().valueOrDefault())
+        return;
+
     if (!standalone && pWindow->effectiveAlpha() == 0.F && !pWindow->m_alpha.isBeingAnimated())
         return;
 
@@ -909,6 +912,9 @@ SP<ITexture> IHyprRenderer::createTexture(const SP<Aquamarine::IBuffer> buffer, 
 
 void IHyprRenderer::renderLayer(PHLLS pLayer, PHLMONITOR pMonitor, const Time::steady_tp& time, bool popups, bool lockscreen) {
     if (!pLayer)
+        return;
+
+    if (m_bScreenshareRender && pLayer->m_ruleApplicator->noScreenShare().valueOrDefault())
         return;
 
     // skip rendering based on abovelock rule and make sure to not render abovelock layers twice

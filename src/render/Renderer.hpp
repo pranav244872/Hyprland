@@ -105,6 +105,7 @@ namespace Render {
         NColorManagement::PImageDescription workBufferImageDescription();
         bool                                m_bBlockSurfaceFeedback = false;
         bool                                m_bRenderingSnapshot    = false;
+        bool                                m_bScreenshareRender    = false;
         PHLMONITORREF                       m_mostHzMonitor;
         bool                                m_directScanoutBlocked = false;
 

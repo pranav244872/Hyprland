@@ -3219,6 +3219,9 @@ void IHyprRenderer::renderFadeouts(PHLMONITOR monitor, Desktop::eFadeoutPlane pl
 
     CRegion fakeDamage{0, 0, monitor->m_transformedSize.x, monitor->m_transformedSize.y};
     for (auto const& fadeout : fadeouts) {
+        if (m_bScreenshareRender && fadeout->noScreenShare())
+            continue;
+
         const auto FB = fadeout->framebuffer();
         if (!FB || !FB->getTexture())
             continue;

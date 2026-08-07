@@ -1,6 +1,7 @@
 #include "PopupFadeout.hpp"
 #include "../view/LayerSurface.hpp"
 #include "../view/Popup.hpp"
+#include "../view/Window.hpp"
 #include "../../config/ConfigValue.hpp"
 #include "../../config/shared/animation/AnimationTree.hpp"
 #include "../../animation/AnimationManager.hpp"
@@ -53,6 +54,13 @@ SP<CPopupFadeout> CPopupFadeout::create(SP<CPopup> popup, SP<Render::IFramebuffe
             fadeout->m_effects.textureBlur.ignoreAlpha = std::max(PLAYER->m_ruleApplicator->ignoreAlpha().valueOrDefault(), 0.01F);
         else
             fadeout->m_effects.textureBlur.ignoreAlpha = std::max(*PBLURIGNOREA, 0.01F);
+    }
+
+    {
+        const auto PLAYER = popup->layerOwner();
+        const auto WINDOWER = popup->windowOwner();
+        fadeout->m_noScreenShare = (PLAYER && PLAYER->m_ruleApplicator->noScreenShare().valueOrDefault()) ||
+                                   (WINDOWER && WINDOWER->m_ruleApplicator->noScreenShare().valueOrDefault());
     }
 
     const auto ANIMCTX = popup->m_animationController.animateOut();

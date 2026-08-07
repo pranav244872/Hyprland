@@ -75,6 +75,8 @@ SP<CWindowFadeout> CWindowFadeout::create(PHLWINDOW window, SP<Render::IFramebuf
     if (*PDIMAROUND && window->m_ruleApplicator->dimAround().valueOrDefault())
         fadeout->m_effects.dimAroundAlpha = *PDIMAROUND;
 
+    fadeout->m_noScreenShare = window->m_ruleApplicator->noScreenShare().valueOrDefault();
+
     const auto ANIMCTX = window->m_animationController.animateOut();
 
     Animation::mgr()->createAnimation(ANIMCTX.pos.from, fadeout->m_realPosition, Config::animationTree()->getAnimationPropertyConfig("windowsOut"), AVARDAMAGE_NONE);

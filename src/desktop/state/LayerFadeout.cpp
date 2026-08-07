@@ -73,6 +73,8 @@ SP<CLayerFadeout> CLayerFadeout::create(PHLLS layer, SP<Render::IFramebuffer> sn
 
     fadeout->m_marksBlurDirty = layer->m_layer == ZWLR_LAYER_SHELL_V1_LAYER_BACKGROUND || layer->m_layer == ZWLR_LAYER_SHELL_V1_LAYER_BOTTOM;
 
+    fadeout->m_noScreenShare = layer->m_ruleApplicator->noScreenShare().valueOrDefault();
+
     const auto ANIMCTX = layer->m_animationController.animateOut();
 
     Animation::mgr()->createAnimation(ANIMCTX.pos.from, fadeout->m_realPosition, Config::animationTree()->getAnimationPropertyConfig("layersOut"), AVARDAMAGE_NONE);

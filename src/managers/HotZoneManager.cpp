@@ -120,9 +120,12 @@ void CHotZoneManager::onCursorMoved(const Vector2D& pos, PHLMONITOR pMonitor) {
         return;
     }
 
-    if (isSlam(pos, pMonitor)) {
+    // Instant slam is corner-only: a corner is a deliberate throw, but an edge
+    // is a line the cursor clamps onto while dragging, which made edge zones
+    // fire by accident. Edges now always wait out the dwell.
+    if (isCorner(ZONE) && isSlam(pos, pMonitor)) {
         disarmDwell();
-        triggerZone(ZONE); // exact bezel pixel: bypass the dwell
+        triggerZone(ZONE); // exact bezel pixel at a corner: bypass the dwell
     } else {
         armDwell(ZONE);
     }

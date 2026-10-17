@@ -36,6 +36,7 @@ std::string CHotZoneManager::strValue(const UP<CConfigValue<Config::STRING>>& v)
 
 CHotZoneManager::CHotZoneManager() {
     m_enabled              = makeUnique<CConfigValue<Config::BOOL>>("hotzone:enabled");
+    m_slam                 = makeUnique<CConfigValue<Config::BOOL>>("hotzone:slam");
     m_dwellMs              = makeUnique<CConfigValue<Config::INTEGER>>("hotzone:dwell_ms");
     m_triggerPx            = makeUnique<CConfigValue<Config::INTEGER>>("hotzone:trigger_px");
     m_rearmMarginPx        = makeUnique<CConfigValue<Config::INTEGER>>("hotzone:rearm_margin_px");
@@ -120,10 +121,10 @@ void CHotZoneManager::onCursorMoved(const Vector2D& pos, PHLMONITOR pMonitor) {
         return;
     }
 
-    // Instant slam is corner-only: a corner is a deliberate throw, but an edge
-    // is a line the cursor clamps onto while dragging, which made edge zones
-    // fire by accident. Edges now always wait out the dwell.
-    if (isCorner(ZONE) && isSlam(pos, pMonitor)) {
+    // Instant slam is opt-in and corner-only: a corner is a deliberate throw,
+    // but an edge is a line the cursor clamps onto while dragging. With the
+    // default (slam = false) every zone waits out the dwell.
+    if (boolValue(m_slam) && isCorner(ZONE) && isSlam(pos, pMonitor)) {
         disarmDwell();
         triggerZone(ZONE); // exact bezel pixel at a corner: bypass the dwell
     } else {

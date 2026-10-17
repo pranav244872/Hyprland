@@ -69,6 +69,7 @@ class CHotZoneManager {
     std::array<SZone, HOTZONE_COUNT> m_zones;
 
     UP<CConfigValue<Config::BOOL>>    m_enabled;
+    UP<CConfigValue<Config::BOOL>>    m_slam;
     UP<CConfigValue<Config::INTEGER>> m_dwellMs;
     UP<CConfigValue<Config::INTEGER>> m_triggerPx;
     UP<CConfigValue<Config::INTEGER>> m_rearmMarginPx;

@@ -863,6 +863,7 @@ std::vector<SP<IValue>> Values::getConfigValues() {
         MS<Int>("hotzone:trigger_px", "thickness of the hot zones at the monitor bezel, in px", 12, {.min = 1, .max = 200}),
         MS<Int>("hotzone:rearm_margin_px", "extra px the cursor must leave a fired zone by before it can fire again", 24, {.min = 0, .max = 500}),
         MS<Int>("hotzone:corner_margin_px", "px the corner zones carve out of the neighbouring edge zones so they never clip", 10, {.min = 0, .max = 200}),
+        MS<Bool>("hotzone:slam", "corners fire on the exact bezel pixel, bypassing the dwell (off = every zone waits)", false),
         MS<Bool>("hotzone:suppress_on_fullscreen", "do not fire hot zones while a covering fullscreen window is on the monitor", true),
 
         MS<Bool>("hotzone:topleft:enabled", "enable the top-left corner zone", true),

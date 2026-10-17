@@ -1,6 +1,7 @@
 #include "InputManager.hpp"
 #include "../../desktop/view/window/WindowPresentation.hpp"
 #include "../../Compositor.hpp"
+#include "../HotZoneManager.hpp"
 #include <aquamarine/output/Output.hpp>
 #include <cstdint>
 #include <hyprutils/math/Vector2D.hpp>
@@ -307,6 +308,11 @@ void CInputManager::mouseMoveUnified(uint32_t time, bool refocus, bool mouse, st
     const auto CURSOR_MONITOR             = Pointer::mgr()->hasTransformers() ? State::monitorState()->query().vec(CURSOR_POSITION).run() : PMONITOR;
     const bool SKIP_CURSOR_FRAME_SCHEDULE = !CURSOR_MONITOR || CURSOR_MONITOR->shouldSkipScheduleFrameOnMouseEvent();
     const auto CURSOR_MONITOR_REF         = CURSOR_MONITOR ? CURSOR_MONITOR->m_self.lock() : nullptr;
+
+    // Edge/corner hot zones (fork feature). Mouse-origin moves only: touch and
+    // absolute warps pass overridePos/refocus and must not run edge actions.
+    if (mouse && g_pHotZoneManager)
+        g_pHotZoneManager->onCursorMoved(mouseCoords, PMONITOR);
 
     if (CURSOR_MONITOR && CURSOR_MONITOR->m_cursorZoom->value() != 1.f)
         g_pHyprRenderer->damageMonitor(CURSOR_MONITOR);

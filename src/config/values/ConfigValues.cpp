@@ -848,6 +848,55 @@ std::vector<SP<IValue>> Values::getConfigValues() {
 
         MS<Int>("quirks:prefer_hdr", "Prefer HDR mode.", 0, {.min = 0, .max = 2, .map = OptionMap{{"disable", 0}, {"enable", 1}, {"gamescope_only", 2}}}),
         MS<Bool>("quirks:skip_non_kms_dmabuf_formats", "Do not report dmabuf formats which cannot be imported into KMS", false),
+
+        /*
+         * hotzone:
+         *
+         * Edge/corner "hot zones" (fork feature). When the cursor rests in a
+         * monitor's outer bezel strip, a per-zone dispatcher string is run.
+         * Lua: hl.config({ hotzone = { enabled = true,
+         *   topleft = { action = "exec, qs ipc call launcher toggle" } } })
+         */
+
+        MS<Bool>("hotzone:enabled", "master switch for edge/corner hot zones", false),
+        MS<Int>("hotzone:dwell_ms", "ms the cursor must rest in a zone before it fires (0 = instantly)", 400, {.min = 0, .max = 5000}),
+        MS<Int>("hotzone:trigger_px", "thickness of the hot zones at the monitor bezel, in px", 12, {.min = 1, .max = 200}),
+        MS<Int>("hotzone:rearm_margin_px", "extra px the cursor must leave a fired zone by before it can fire again", 24, {.min = 0, .max = 500}),
+        MS<Int>("hotzone:corner_margin_px", "px the corner zones carve out of the neighbouring edge zones so they never clip", 10, {.min = 0, .max = 200}),
+        MS<Bool>("hotzone:suppress_on_fullscreen", "do not fire hot zones while a covering fullscreen window is on the monitor", true),
+
+        MS<Bool>("hotzone:topleft:enabled", "enable the top-left corner zone", true),
+        MS<String>("hotzone:topleft:action", "dispatcher to run for the top-left corner, e.g. \"exec, qs ipc call launcher toggle\"", STRVAL_EMPTY),
+        MS<Int>("hotzone:topleft:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
+        MS<Bool>("hotzone:topright:enabled", "enable the top-right corner zone", true),
+        MS<String>("hotzone:topright:action", "dispatcher to run for the top-right corner", STRVAL_EMPTY),
+        MS<Int>("hotzone:topright:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
+        MS<Bool>("hotzone:bottomleft:enabled", "enable the bottom-left corner zone", true),
+        MS<String>("hotzone:bottomleft:action", "dispatcher to run for the bottom-left corner", STRVAL_EMPTY),
+        MS<Int>("hotzone:bottomleft:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
+        MS<Bool>("hotzone:bottomright:enabled", "enable the bottom-right corner zone", true),
+        MS<String>("hotzone:bottomright:action", "dispatcher to run for the bottom-right corner", STRVAL_EMPTY),
+        MS<Int>("hotzone:bottomright:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
+        MS<Bool>("hotzone:top:enabled", "enable the top edge zone", true),
+        MS<String>("hotzone:top:action", "dispatcher to run for the top edge", STRVAL_EMPTY),
+        MS<Int>("hotzone:top:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
+        MS<Bool>("hotzone:bottom:enabled", "enable the bottom edge zone", true),
+        MS<String>("hotzone:bottom:action", "dispatcher to run for the bottom edge", STRVAL_EMPTY),
+        MS<Int>("hotzone:bottom:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
+        MS<Bool>("hotzone:left:enabled", "enable the left edge zone", true),
+        MS<String>("hotzone:left:action", "dispatcher to run for the left edge", STRVAL_EMPTY),
+        MS<Int>("hotzone:left:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
+        MS<Bool>("hotzone:right:enabled", "enable the right edge zone", true),
+        MS<String>("hotzone:right:action", "dispatcher to run for the right edge", STRVAL_EMPTY),
+        MS<Int>("hotzone:right:dwell_ms", "per-zone dwell override in ms (-1 = use hotzone:dwell_ms)", -1, {.min = -1, .max = 5000}),
+
     };
 
 #undef MS

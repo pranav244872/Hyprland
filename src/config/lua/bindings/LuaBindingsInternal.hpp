@@ -210,6 +210,7 @@ namespace Config::Lua::Bindings::Internal {
     void registerLayoutBindings(lua_State* L, CConfigManager* mgr);
     void registerQueryBindings(lua_State* L);
     void registerNotificationBindings(lua_State* L);
+    void registerHotZoneBindings(lua_State* L);
     void registerConfigRuleBindings(lua_State* L, CConfigManager* mgr);
     void registerBindingsImpl(lua_State* L, CConfigManager* mgr);
     void registerDispatcherBindings(lua_State* L);

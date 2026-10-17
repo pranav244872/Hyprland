@@ -48,6 +48,7 @@
 #include "helpers/ByteOperations.hpp"
 
 #include "keybinds/Manager.hpp"
+#include "managers/HotZoneManager.hpp"
 #include "managers/SessionLockManager.hpp"
 #include "managers/XWaylandManager.hpp"
 
@@ -614,6 +615,7 @@ void CCompositor::cleanup() {
 
     removeAllSignals();
 
+    g_pHotZoneManager.reset();
     g_pInputManager.reset();
     g_pDynamicPermissionManager.reset();
     g_pDecorationPositioner.reset();
@@ -732,6 +734,9 @@ void CCompositor::initManagers(eManagersInitStage stage) {
         case STAGE_LATE: {
             LOG(Log::DEBUG, "Creating Socket1");
             IPC::Socket1::sock() = makeUnique<IPC::Socket1::CSocket1>();
+
+            LOG(Log::DEBUG, "Creating the HotZoneManager!");
+            g_pHotZoneManager = makeUnique<CHotZoneManager>();
 
             LOG(Log::DEBUG, "Creating the InputManager!");
             g_pInputManager = makeUnique<CInputManager>();

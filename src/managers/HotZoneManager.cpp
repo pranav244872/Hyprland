@@ -5,7 +5,7 @@
 #include "./eventLoop/EventLoopManager.hpp"
 #include "./input/InputManager.hpp"
 #include "./fullscreen/FullscreenController.hpp"
-#include "./KeybindManager.hpp"
+#include "../config/supplementary/executor/Executor.hpp"
 #include "../state/MonitorState.hpp"
 
 #include <algorithm>
@@ -63,11 +63,7 @@ CHotZoneManager::CHotZoneManager() {
     if (g_pEventLoopManager)
         g_pEventLoopManager->addTimer(m_dwellTimer);
 
-    // expose the runtime dispatcher for keybinds / hyprctl: `hotzone <enable|disable|toggle>`
-    if (g_pKeybindManager)
-        g_pKeybindManager->m_dispatchers["hotzone"] = [](std::string args) -> SDispatchResult {
-            return g_pHotZoneManager ? g_pHotZoneManager->dispatch(args) : SDispatchResult{.success = false, .error = "hotzone unavailable"};
-        };
+    // actions run through the action runner below; runtime toggles live in hl.hotzone.*
 }
 
 CHotZoneManager::~CHotZoneManager() {
@@ -178,10 +174,9 @@ void CHotZoneManager::triggerZone(eHotZone zone) {
 }
 
 void CHotZoneManager::runAction(const std::string& action) {
-    if (!g_pKeybindManager)
-        return;
-
-    // accept both "handler, args" (classic) and "handler args"
+    // 0.57 dispatchers are lua objects, not name strings, so a config action is
+    // limited to process spawning: "exec, <cmd>" (rules-aware) / "execr, <cmd>".
+    // Anything richer belongs in a lua keybind.
     std::string handler;
     std::string args;
 
@@ -195,15 +190,18 @@ void CHotZoneManager::runAction(const std::string& action) {
         handler = trimStr(action);
     }
 
-    const auto DISPATCHER = g_pKeybindManager->m_dispatchers.find(handler);
-    if (DISPATCHER == g_pKeybindManager->m_dispatchers.end()) {
-        Log::logger->log(Log::ERR, "[hotzone] unknown action \"{}\"", action);
+    if (args.empty() || (handler != "exec" && handler != "execr")) {
+        LOG(Log::ERR, "[hotzone] unsupported action \"{}\" (use \"exec, <cmd>\")", action);
         return;
     }
 
-    const auto RES = DISPATCHER->second(args);
-    if (!RES.success)
-        Log::logger->log(Log::ERR, "[hotzone] action \"{}\" failed: {}", action, RES.error);
+    if (!Config::Supplementary::executor())
+        return;
+
+    Config::Supplementary::SExecRequest request;
+    request.exec      = args;
+    request.withRules = handler == "exec";
+    Config::Supplementary::executor()->spawn(request);
 }
 
 bool CHotZoneManager::isSuppressed(PHLMONITOR pMonitor) const {
@@ -214,7 +212,7 @@ bool CHotZoneManager::isSuppressed(PHLMONITOR pMonitor) const {
         return true;
 
     // an exclusive keyboard-interactive layer surface is up (launcher, screenshot overlay, …)
-    if (!g_pInputManager->m_exclusiveLSes.empty())
+    if (!g_pInputManager->m_exclusiveKeyboardLSes.empty())
         return true;
 
     if (boolValue(m_suppressOnFullscreen) && Fullscreen::controller() && Fullscreen::controller()->hasFullscreen(pMonitor))
@@ -327,23 +325,4 @@ void CHotZoneManager::toggleRuntime() {
 
 bool CHotZoneManager::isActive() const {
     return boolValue(m_enabled) && m_runtimeEnabled;
-}
-
-SDispatchResult CHotZoneManager::dispatch(const std::string& args) {
-    const auto A = trimStr(args);
-
-    if (A == "enable") {
-        setRuntimeEnabled(true);
-        return {.success = true};
-    }
-    if (A == "disable") {
-        setRuntimeEnabled(false);
-        return {.success = true};
-    }
-    if (A == "toggle") {
-        toggleRuntime();
-        return {.success = true};
-    }
-
-    return {.success = false, .error = "hotzone: expected \"enable\", \"disable\" or \"toggle\""};
 }

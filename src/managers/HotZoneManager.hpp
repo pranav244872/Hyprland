@@ -39,9 +39,6 @@ class CHotZoneManager {
     void toggleRuntime();
     bool isActive() const; // config master switch && runtime flag
 
-    // dispatcher "hotzone <enable|disable|toggle>"
-    SDispatchResult dispatch(const std::string& args);
-
   private:
     struct SZone {
         UP<CConfigValue<Config::BOOL>>    enabled;
